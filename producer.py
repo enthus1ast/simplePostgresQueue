@@ -13,7 +13,4 @@ if __name__ == "__main__":
     qrun.addWork("TEST")
     print("ADDED")
     time.sleep(2)
-
-  # print(qrun.checkout())
-  # qrun.ack()
   qrun.close()

@@ -1,6 +1,7 @@
 # TODO
 # - Add option to change the table_name
 # - Add option to change the payload datatype (jsonb?)
+# - Block checkout somehow so that no polling is needed.
 
 import psycopg
 import time
@@ -33,7 +34,7 @@ class QRun:
     return self.checkoutRowId != None
 
   def checkout(self):
-    """Foo"""
+    """Returns and locks a row."""
     self._testGood()
     if self._hasCheckout():
       raise RuntimeError("Already checked out a row, call `ack` or `nack` before checking out a new one")
@@ -63,8 +64,6 @@ class QRun:
     self._testGood()
     self.cur.execute("insert into queue_table (payload) VALUES (%s);", [payload]) # TODO why self.database does not work as a placeholder?
     self.cur.execute("commit") # TODO why self.database does not work as a placeholder?
-
-    # self.cur.commit()
 
   def nack(self):
     """DO NOT Acknowlage the row, leave it in the queue, rollback all db changes"""
@@ -103,9 +102,9 @@ if __name__ == "__main__":
   DATABASE= "pipelines"
   qrun = QRun(SERVER, USER, PW, DATABASE)
   qrun.connect()
+  qrun.createTable()
 
   while True:
-    # qrun.addWork("TEST")
     try:
       print(qrun.checkout())
 
